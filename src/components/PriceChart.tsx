@@ -33,7 +33,7 @@ export function PriceChart({ symbol }: Props) {
               tickFormatter={v => v.toLocaleString()}
             />
             <Tooltip
-              formatter={(v: number) => [`${v.toLocaleString()} USDT`, 'Prix']}
+              formatter={(v) => [`${Number(v).toLocaleString()} USDT`, 'Prix']}
               contentStyle={{ background: '#1a1a1a', border: '1px solid #333' }}
             />
             <Line type="monotone" dataKey="close" stroke="#00c896" dot={false} strokeWidth={2} />
