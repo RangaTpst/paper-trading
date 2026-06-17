@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { parseTicker, parseKline, parse24hrStats } from '../../api/binance/parser'
+import type { BinanceTicker, Binance24hrStats } from '../../api/binance/types'
 
 // Tests dédiés à la validation des types API Binance → types internes
 
@@ -13,11 +14,11 @@ describe('Validation des types API Binance', () => {
     })
 
     it('lève une erreur si le champ price est absent', () => {
-      expect(() => parseTicker({ symbol: 'BTCUSDT' } as any)).toThrow()
+      expect(() => parseTicker({ symbol: 'BTCUSDT' } as unknown as BinanceTicker)).toThrow()
     })
 
     it('lève une erreur si symbol est absent', () => {
-      expect(() => parseTicker({ price: '43000' } as any)).toThrow()
+      expect(() => parseTicker({ price: '43000' } as unknown as BinanceTicker)).toThrow()
     })
 
     it('lève une erreur si price n\'est pas parseable en number', () => {
@@ -26,12 +27,12 @@ describe('Validation des types API Binance', () => {
   })
 
   describe('parseKline', () => {
-    const validRaw = [
+    const validRaw: [number, string, string, string, string, string, number] = [
       1717200000000, '42000.00', '44000.00', '41500.00', '43250.50', '1250.5', 1717286399999,
     ]
 
     it('parse une kline Binance en objet typé', () => {
-      const kline = parseKline(validRaw as any)
+      const kline = parseKline(validRaw)
       expect(kline.openTime).toBe(1717200000000)
       expect(kline.open).toBe(42_000)
       expect(kline.high).toBe(44_000)
@@ -41,7 +42,7 @@ describe('Validation des types API Binance', () => {
     })
 
     it('tous les prix sont des numbers (pas des strings)', () => {
-      const kline = parseKline(validRaw as any)
+      const kline = parseKline(validRaw)
       expect(typeof kline.open).toBe('number')
       expect(typeof kline.high).toBe('number')
       expect(typeof kline.low).toBe('number')
@@ -49,12 +50,12 @@ describe('Validation des types API Binance', () => {
     })
 
     it('lève une erreur si le tableau est incomplet', () => {
-      expect(() => parseKline([1717200000000] as any)).toThrow()
+      expect(() => parseKline([1717200000000] as unknown as Parameters<typeof parseKline>[0])).toThrow()
     })
   })
 
   describe('parse24hrStats', () => {
-    const validRaw = {
+    const validRaw: Binance24hrStats = {
       symbol: 'BTCUSDT',
       priceChange: '-500.00',
       priceChangePercent: '-1.14',
@@ -74,7 +75,7 @@ describe('Validation des types API Binance', () => {
 
     it('lève une erreur si un champ obligatoire est manquant', () => {
       const incomplete = { symbol: 'BTCUSDT', lastPrice: '43250.50' }
-      expect(() => parse24hrStats(incomplete as any)).toThrow()
+      expect(() => parse24hrStats(incomplete as unknown as Partial<Binance24hrStats>)).toThrow()
     })
   })
 })

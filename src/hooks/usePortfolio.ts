@@ -33,7 +33,9 @@ function loadPortfolio(): Portfolio {
     if (saved) return JSON.parse(saved, (key, val) =>
       key === 'timestamp' ? new Date(val) : val
     )
-  } catch {}
+  } catch {
+    console.warn('localStorage indisponible, portefeuille réinitialisé')
+  }
   return createPortfolio(10_000)
 }
 
@@ -41,7 +43,11 @@ export function usePortfolio() {
   const [portfolio, dispatch] = useReducer(reducer, undefined, loadPortfolio)
 
   const save = (p: Portfolio) => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)) } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(p))
+    } catch {
+      console.warn('Impossible de sauvegarder le portefeuille')
+    }
   }
 
   const buy = (order: OrderRequest) => {
