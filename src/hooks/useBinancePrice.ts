@@ -2,10 +2,19 @@ import { useState, useEffect } from 'react'
 import { getPrice, getKlines } from '../api/binance/rest'
 import type { ParsedKline } from '../api/binance/parser'
 
-const PAIRS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
+export const PAIRS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
+
+// Prix simulés utilisés si l'API Binance est inaccessible (blocage FAI/réseau)
+const FALLBACK_PRICES: Record<string, number> = {
+  BTCUSDT: 65_000,
+  ETHUSDT: 3_500,
+  BNBUSDT: 580,
+  SOLUSDT: 145,
+  XRPUSDT: 0.52,
+}
 
 export function useBinancePrices() {
-  const [prices, setPrices] = useState<Record<string, number>>({})
+  const [prices, setPrices] = useState<Record<string, number>>(FALLBACK_PRICES)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -18,14 +27,15 @@ export function useBinancePrices() {
         setPrices(map)
         setError(null)
       } catch {
-        setError('Impossible de récupérer les prix Binance')
+        setPrices(FALLBACK_PRICES)
+        setError('Prix simulés — API Binance inaccessible')
       } finally {
         setLoading(false)
       }
     }
 
     fetchAll()
-    const interval = setInterval(fetchAll, 5_000)
+    const interval = setInterval(fetchAll, 10_000)
     return () => clearInterval(interval)
   }, [])
 

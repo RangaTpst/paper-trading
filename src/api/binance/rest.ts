@@ -2,7 +2,8 @@ import type { CryptoPrice } from '../types'
 import { parseTicker, parseKline, parse24hrStats } from './parser'
 import type { ParsedKline, Parsed24hrStats } from './parser'
 
-const BASE_URL = 'https://api.binance.com/api/v3'
+// En dev, le proxy Vite évite les blocages CORS/FAI sur api.binance.com
+const BASE_URL = import.meta.env.DEV ? '/binance/api/v3' : 'https://api.binance.com/api/v3'
 
 async function binanceFetch(url: string): Promise<unknown> {
   const res = await fetch(url)
