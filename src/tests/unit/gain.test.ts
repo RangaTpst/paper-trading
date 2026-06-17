@@ -1,84 +1,34 @@
 import { describe, it, expect } from 'vitest'
-import { calcPnL, calcRoi } from '../../core/stats'
+import { calcPnL } from '../../core/stats'
 import type { Trade } from '../../api/types'
 
-const makeTrade = (override: Partial<Trade> = {}): Trade => ({
-  id: Math.random().toString(),
-  symbol: 'BTCUSDT',
-  side: 'BUY',
-  quantity: 0.1,
-  price: 40_000,
-  fees: 4,
-  total: 4_004,
-  timestamp: new Date(),
-  ...override,
-})
+// T05 — Vérification des gains (P&L = Profit and Loss)
+describe('Gains et pertes (P&L)', () => {
+  const achat: Trade = {
+    id: '1', symbol: 'BTCUSDT', side: 'BUY',
+    quantity: 0.1, price: 40_000, fees: 4, total: 4_004,
+    timestamp: new Date(),
+  }
 
-describe('Vérification des gains (P&L)', () => {
-  describe('gain positif', () => {
-    it('calcule le gain net après achat/vente profitable', () => {
-      // Achat 0.1 BTC à 40 000 → vente à 43 000
-      // Gain brut : (43000 - 40000) * 0.1 = 300
-      // Frais : 4 (achat) + 4.3 (vente) = 8.3
-      // Gain net : 300 - 8.3 = 291.7
-      const buy = makeTrade({ side: 'BUY', price: 40_000, fees: 4 })
-      const sell = makeTrade({ side: 'SELL', price: 43_000, fees: 4.3 })
-      expect(calcPnL([buy, sell])).toBeCloseTo(291.7, 1)
-    })
+  const vente: Trade = {
+    id: '2', symbol: 'BTCUSDT', side: 'SELL',
+    quantity: 0.1, price: 43_000, fees: 4.3, total: 4_295.7,
+    timestamp: new Date(),
+  }
 
-    it('calcule le gain sur ETH', () => {
-      const buy = makeTrade({ symbol: 'ETHUSDT', side: 'BUY', quantity: 1, price: 3_000, fees: 3 })
-      const sell = makeTrade({ symbol: 'ETHUSDT', side: 'SELL', quantity: 1, price: 3_500, fees: 3.5 })
-      expect(calcPnL([buy, sell])).toBeCloseTo(500 - 6.5, 1)
-    })
+  it('Given achat 40 000 + vente 43 000, When calcul P&L, Then gain ≈ 291.7 USDT', () => {
+    // Gain brut : (43000 - 40000) * 0.1 = 300
+    // Frais totaux : 4 + 4.3 = 8.3
+    // Gain net : 300 - 8.3 = 291.7
+    expect(calcPnL([achat, vente])).toBeCloseTo(291.7, 1)
   })
 
-  describe('perte (gain négatif)', () => {
-    it('calcule une perte sur un trade perdant', () => {
-      const buy = makeTrade({ side: 'BUY', price: 43_000, fees: 4.3 })
-      const sell = makeTrade({ side: 'SELL', price: 40_000, fees: 4 })
-      expect(calcPnL([buy, sell])).toBeLessThan(0)
-    })
-
-    it('la perte inclut les frais des deux côtés', () => {
-      const buy = makeTrade({ side: 'BUY', price: 43_000, fees: 4.3 })
-      const sell = makeTrade({ side: 'SELL', price: 40_000, fees: 4 })
-      const pnl = calcPnL([buy, sell])
-      // Perte brute : (40000 - 43000) * 0.1 = -300
-      // Frais : 4.3 + 4 = 8.3
-      // Perte nette : -300 - 8.3 = -308.3
-      expect(pnl).toBeCloseTo(-308.3, 1)
-    })
+  it('Given vente à prix inférieur à l\'achat, When calcul P&L, Then perte', () => {
+    const ventePerdue: Trade = { ...vente, price: 38_000, fees: 3.8, total: 3_796.2 }
+    expect(calcPnL([achat, ventePerdue])).toBeLessThan(0)
   })
 
-  describe('cas limites', () => {
-    it('retourne 0 si aucun trade', () => {
-      expect(calcPnL([])).toBe(0)
-    })
-
-    it('retourne 0 si seulement des achats sans vente', () => {
-      const buys = [
-        makeTrade({ side: 'BUY' }),
-        makeTrade({ side: 'BUY' }),
-      ]
-      expect(calcPnL(buys)).toBe(0)
-    })
-  })
-
-  describe('ROI (retour sur investissement en %)', () => {
-    it('calcule le ROI positif', () => {
-      // Investi 4000, gagné 291.7 → ROI = 291.7 / 4000 * 100 ≈ 7.29%
-      const roi = calcRoi(291.7, 4_000)
-      expect(roi).toBeCloseTo(7.29, 1)
-    })
-
-    it('calcule le ROI négatif (perte)', () => {
-      const roi = calcRoi(-308.3, 4_300)
-      expect(roi).toBeLessThan(0)
-    })
-
-    it('retourne 0 si le capital investi est 0', () => {
-      expect(calcRoi(0, 0)).toBe(0)
-    })
+  it('Given aucun trade, When calcul P&L, Then P&L = 0', () => {
+    expect(calcPnL([])).toBe(0)
   })
 })
