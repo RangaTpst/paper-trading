@@ -1,7 +1,7 @@
-import { Position } from '../api/types'
+import type { Position } from '../api/types'
 
 interface Props {
-  positions: Position[]
+  readonly positions: Position[]
 }
 
 export function PositionsList({ positions }: Props) {

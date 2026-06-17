@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calcPnL, calcRoi } from '../../core/stats'
-import { Trade } from '../../api/types'
+import type { Trade } from '../../api/types'
 
 const makeTrade = (override: Partial<Trade> = {}): Trade => ({
   id: Math.random().toString(),

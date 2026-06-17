@@ -1,4 +1,4 @@
-import { Trade, Position } from '../api/types'
+import type { Trade, Position } from '../api/types'
 
 type FrequencyPeriod = 'day' | 'week' | 'month'
 

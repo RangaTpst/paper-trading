@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { OrderRequest } from '../api/types'
+import type { OrderRequest } from '../api/types'
 
 interface Props {
-  symbol: string
-  currentPrice: number
-  onBuy: (order: OrderRequest) => void
-  onSell: (order: OrderRequest) => void
+  readonly symbol: string
+  readonly currentPrice: number
+  readonly onBuy: (order: OrderRequest) => void
+  readonly onSell: (order: OrderRequest) => void
 }
 
 export function OrderForm({ symbol, currentPrice, onBuy, onSell }: Props) {
@@ -13,13 +13,13 @@ export function OrderForm({ symbol, currentPrice, onBuy, onSell }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const total = parseFloat(quantity || '0') * currentPrice
+  const total = Number.parseFloat(quantity || '0') * currentPrice
   const fees = total * 0.001
 
   const handleOrder = (side: 'BUY' | 'SELL') => {
     setError(null)
     setSuccess(false)
-    const qty = parseFloat(quantity)
+    const qty = Number.parseFloat(quantity)
     if (!qty || qty <= 0) { setError('Quantité invalide'); return }
     const order: OrderRequest = { symbol, side, quantity: qty, price: currentPrice }
     try {
@@ -38,8 +38,9 @@ export function OrderForm({ symbol, currentPrice, onBuy, onSell }: Props) {
       <span className="card-label">Passer un ordre — {symbol.replace('USDT', '/USDT')}</span>
 
       <div style={{ marginTop: '1rem' }}>
-        <label style={{ fontSize: '0.85rem', color: '#888' }}>Quantité</label>
+        <label htmlFor="order-quantity-input" style={{ fontSize: '0.85rem', color: '#888' }}>Quantité</label>
         <input
+          id="order-quantity-input"
           data-testid="order-quantity"
           type="number"
           value={quantity}

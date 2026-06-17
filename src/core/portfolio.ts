@@ -1,4 +1,4 @@
-import { Portfolio, OrderRequest, Trade, Position } from '../api/types'
+import type { Portfolio, OrderRequest, Trade, Position } from '../api/types'
 import { calculateFees, FeeMode } from './fees'
 
 export function createPortfolio(initialBalance: number): Portfolio {

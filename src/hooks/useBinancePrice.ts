@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getPrice, getKlines } from '../api/binance/rest'
-import { ParsedKline } from '../api/binance/parser'
+import type { ParsedKline } from '../api/binance/parser'
 
 const PAIRS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
 

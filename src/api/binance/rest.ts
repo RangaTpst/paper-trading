@@ -1,5 +1,6 @@
-import { CryptoPrice } from '../types'
-import { parseTicker, parseKline, parse24hrStats, ParsedKline, Parsed24hrStats } from './parser'
+import type { CryptoPrice } from '../types'
+import { parseTicker, parseKline, parse24hrStats } from './parser'
+import type { ParsedKline, Parsed24hrStats } from './parser'
 
 const BASE_URL = 'https://api.binance.com/api/v3'
 
@@ -21,7 +22,7 @@ export async function getPrice(symbol: string): Promise<CryptoPrice> {
 
 export async function getKlines(symbol: string, interval: string, limit: number): Promise<ParsedKline[]> {
   const data = await binanceFetch(`${BASE_URL}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`)
-  return (data as unknown[][]).map(parseKline)
+  return (data as Parameters<typeof parseKline>[0][]).map(parseKline)
 }
 
 export async function get24hrStats(symbol: string): Promise<Parsed24hrStats> {

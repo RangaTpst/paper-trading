@@ -1,8 +1,8 @@
-import { Portfolio } from '../api/types'
+import type { Portfolio } from '../api/types'
 import { calcPnL, calcTotalFees, calcPortfolioValue } from '../core/stats'
 
 interface Props {
-  portfolio: Portfolio
+  readonly portfolio: Portfolio
 }
 
 export function BalanceCard({ portfolio }: Props) {

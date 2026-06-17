@@ -1,5 +1,5 @@
-import { BinanceTicker, BinanceKline, Binance24hrStats } from './types'
-import { CryptoPrice } from '../types'
+import type { BinanceTicker, Binance24hrStats } from './types'
+import type { CryptoPrice } from '../types'
 
 export interface ParsedKline {
   openTime: number
@@ -21,39 +21,44 @@ export interface Parsed24hrStats {
   lowPrice: number
 }
 
+// Format exact d'une kline Binance : [openTime, open, high, low, close, volume, closeTime, ...]
+type RawKline = [number, string, string, string, string, string, number, ...unknown[]]
+
 export function parseTicker(raw: BinanceTicker): CryptoPrice {
   if (!raw.symbol) throw new Error('Champ symbol manquant')
   if (raw.price === undefined || raw.price === null) throw new Error('Champ price manquant')
-  const price = parseFloat(raw.price)
-  if (isNaN(price)) throw new Error('price non parseable en number')
+  const price = Number.parseFloat(raw.price)
+  if (Number.isNaN(price)) throw new Error('price non parseable en number')
   return { symbol: raw.symbol, price }
 }
 
-export function parseKline(raw: unknown[]): ParsedKline {
-  if (!raw || raw.length < 7) throw new Error('Kline incomplète')
+export function parseKline(raw: RawKline): ParsedKline {
+  if (raw.length < 7) throw new Error('Kline incomplète')
   return {
-    openTime: raw[0] as number,
-    open: parseFloat(raw[1] as string),
-    high: parseFloat(raw[2] as string),
-    low: parseFloat(raw[3] as string),
-    close: parseFloat(raw[4] as string),
-    volume: parseFloat(raw[5] as string),
-    closeTime: raw[6] as number,
+    openTime: raw[0],
+    open: Number.parseFloat(raw[1]),
+    high: Number.parseFloat(raw[2]),
+    low: Number.parseFloat(raw[3]),
+    close: Number.parseFloat(raw[4]),
+    volume: Number.parseFloat(raw[5]),
+    closeTime: raw[6],
   }
 }
 
+const REQUIRED_STATS_FIELDS = ['symbol', 'priceChange', 'priceChangePercent', 'lastPrice', 'volume', 'highPrice', 'lowPrice'] as const
+
 export function parse24hrStats(raw: Partial<Binance24hrStats>): Parsed24hrStats {
-  const required = ['symbol', 'priceChange', 'priceChangePercent', 'lastPrice', 'volume', 'highPrice', 'lowPrice']
-  for (const field of required) {
+  for (const field of REQUIRED_STATS_FIELDS) {
     if (!(field in raw)) throw new Error(`Champ obligatoire manquant : ${field}`)
   }
+  const v = raw as Binance24hrStats
   return {
-    symbol: raw.symbol!,
-    priceChange: parseFloat(raw.priceChange!),
-    priceChangePercent: parseFloat(raw.priceChangePercent!),
-    lastPrice: parseFloat(raw.lastPrice!),
-    volume: parseFloat(raw.volume!),
-    highPrice: parseFloat(raw.highPrice!),
-    lowPrice: parseFloat(raw.lowPrice!),
+    symbol: v.symbol,
+    priceChange: Number.parseFloat(v.priceChange),
+    priceChangePercent: Number.parseFloat(v.priceChangePercent),
+    lastPrice: Number.parseFloat(v.lastPrice),
+    volume: Number.parseFloat(v.volume),
+    highPrice: Number.parseFloat(v.highPrice),
+    lowPrice: Number.parseFloat(v.lowPrice),
   }
 }

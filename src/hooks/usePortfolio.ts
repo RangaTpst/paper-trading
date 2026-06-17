@@ -1,5 +1,5 @@
 import { useReducer } from 'react'
-import { Portfolio, OrderRequest } from '../api/types'
+import type { Portfolio, OrderRequest } from '../api/types'
 import { createPortfolio, executeBuy, executeSell } from '../core/portfolio'
 
 type Action =

@@ -1,8 +1,8 @@
 interface Props {
-  pairs: string[]
-  selected: string
-  prices: Record<string, number>
-  onSelect: (pair: string) => void
+  readonly pairs: string[]
+  readonly selected: string
+  readonly prices: Record<string, number>
+  readonly onSelect: (pair: string) => void
 }
 
 export function PairSelector({ pairs, selected, prices, onSelect }: Props) {

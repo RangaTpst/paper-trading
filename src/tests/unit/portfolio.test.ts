@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createPortfolio, executeBuy, executeSell } from '../../core/portfolio'
-import { Portfolio } from '../../api/types'
+import type { Portfolio } from '../../api/types'
 
 const INITIAL_BALANCE = 10_000
 

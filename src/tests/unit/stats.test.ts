@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calcPnL, calcTradingFrequency, calcTotalFees, calcPortfolioValue } from '../../core/stats'
-import { Trade, Position } from '../../api/types'
+import type { Trade, Position } from '../../api/types'
 
 const makeTrade = (override: Partial<Trade> = {}): Trade => ({
   id: '1',

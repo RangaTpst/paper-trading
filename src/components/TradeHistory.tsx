@@ -1,7 +1,7 @@
-import { Trade } from '../api/types'
+import type { Trade } from '../api/types'
 
 interface Props {
-  trades: Trade[]
+  readonly trades: Trade[]
 }
 
 export function TradeHistory({ trades }: Props) {
