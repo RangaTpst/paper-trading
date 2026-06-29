@@ -55,7 +55,7 @@ export function PriceChart({ symbol, klines, active = false, funMode = false }: 
               tickFormatter={v => v.toLocaleString()}
             />
             <Tooltip
-              labelFormatter={formatTime}
+              labelFormatter={(label) => formatTime(Number(label))}
               formatter={(v) => [`${Number(v).toLocaleString()} USDT`, 'Prix']}
               contentStyle={{ background: '#1a1a1a', border: '1px solid #333' }}
             />
