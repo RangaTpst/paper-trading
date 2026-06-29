@@ -53,3 +53,21 @@ export function useKlines(symbol: string) {
 
   return klines
 }
+
+function setSymbolKlines(symbol: string, klines: ParsedKline[]) {
+  return (prev: Record<string, ParsedKline[]>) => ({ ...prev, [symbol]: klines })
+}
+
+export function useAllKlines() {
+  const [klinesMap, setKlinesMap] = useState<Record<string, ParsedKline[]>>({})
+
+  useEffect(() => {
+    for (const symbol of PAIRS) {
+      getKlines(symbol, '1h', 48)
+        .then(klines => setKlinesMap(setSymbolKlines(symbol, klines)))
+        .catch(() => setKlinesMap(setSymbolKlines(symbol, [])))
+    }
+  }, [])
+
+  return klinesMap
+}

@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import type { OrderRequest } from '../api/types'
+import { getDisplayName } from '../theme/helldivers'
 
 interface Props {
   readonly symbol: string
   readonly currentPrice: number
   readonly onBuy: (order: OrderRequest) => void
   readonly onSell: (order: OrderRequest) => void
+  readonly funMode?: boolean
 }
 
-export function OrderForm({ symbol, currentPrice, onBuy, onSell }: Props) {
+export function OrderForm({ symbol, currentPrice, onBuy, onSell, funMode = false }: Props) {
   const [quantity, setQuantity] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -35,7 +37,9 @@ export function OrderForm({ symbol, currentPrice, onBuy, onSell }: Props) {
 
   return (
     <div className="card">
-      <span className="card-label">Passer un ordre — {symbol.replace('USDT', '/USDT')}</span>
+      <span className="card-label">
+        {funMode ? 'ORDRE DE DÉPLOIEMENT' : 'Passer un ordre'} — {getDisplayName(symbol, funMode)}
+      </span>
 
       <div style={{ marginTop: '1rem' }}>
         <label htmlFor="order-quantity-input" style={{ fontSize: '0.85rem', color: '#888' }}>Quantité</label>
@@ -61,10 +65,10 @@ export function OrderForm({ symbol, currentPrice, onBuy, onSell }: Props) {
 
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
         <button data-testid="order-buy" className="btn btn--buy" onClick={() => handleOrder('BUY')}>
-          Acheter (BUY)
+          {funMode ? 'DÉPLOYER' : 'Acheter (BUY)'}
         </button>
         <button data-testid="order-sell" className="btn btn--sell" onClick={() => handleOrder('SELL')}>
-          Vendre (SELL)
+          {funMode ? 'EXTRACTION' : 'Vendre (SELL)'}
         </button>
       </div>
 

@@ -24,8 +24,9 @@ test.describe('Dashboard', () => {
     await expect(page.getByTestId('total-fees')).toBeVisible()
   })
 
-  test('affiche le graphique de prix', async ({ page }) => {
-    await expect(page.getByTestId('price-chart')).toBeVisible()
+  test('affiche un graphique de prix par paire', async ({ page }) => {
+    await expect(page.getByTestId('price-chart-BTCUSDT')).toBeVisible()
+    await expect(page.getByTestId('price-chart-ETHUSDT')).toBeVisible()
   })
 
   test('la liste des paires crypto est visible', async ({ page }) => {
