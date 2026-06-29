@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcPnL } from '../../core/stats'
+import { calcPnL, calcRoi } from '../../core/stats'
 import type { Trade } from '../../api/types'
 
 // T05 — Vérification des gains (P&L = Profit and Loss)
@@ -30,5 +30,13 @@ describe('Gains et pertes (P&L)', () => {
 
   it('Given aucun trade, When calcul P&L, Then P&L = 0', () => {
     expect(calcPnL([])).toBe(0)
+  })
+
+  it('Given gain de 291.7 sur un investissement de 4000, When calcRoi, Then ROI ≈ 7.29%', () => {
+    expect(calcRoi(291.7, 4_000)).toBeCloseTo(7.29, 1)
+  })
+
+  it('Given capital investi = 0, When calcRoi, Then ROI = 0 (évite la division par zéro)', () => {
+    expect(calcRoi(100, 0)).toBe(0)
   })
 })

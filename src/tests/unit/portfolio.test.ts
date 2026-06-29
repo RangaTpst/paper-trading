@@ -31,4 +31,28 @@ describe('Portefeuille', () => {
       executeSell(portfolio, { symbol: 'ETHUSDT', side: 'SELL', quantity: 1, price: 3_000 })
     ).toThrow('Position introuvable')
   })
+
+  it('Given position de 0.1 BTC, When vente partielle de 0.05, Then la position reste ouverte avec 0.05', () => {
+    let portfolio = createPortfolio(10_000)
+    portfolio = executeBuy(portfolio, { symbol: 'BTCUSDT', side: 'BUY', quantity: 0.1, price: 40_000 })
+    const result = executeSell(portfolio, { symbol: 'BTCUSDT', side: 'SELL', quantity: 0.05, price: 43_000 })
+    expect(result.positions).toHaveLength(1)
+    expect(result.positions[0].quantity).toBeCloseTo(0.05, 5)
+  })
+
+  it('Given vente d\'une quantité supérieure à la position, When executeSell, Then erreur "Quantité insuffisante"', () => {
+    let portfolio = createPortfolio(10_000)
+    portfolio = executeBuy(portfolio, { symbol: 'BTCUSDT', side: 'BUY', quantity: 0.1, price: 40_000 })
+    expect(() =>
+      executeSell(portfolio, { symbol: 'BTCUSDT', side: 'SELL', quantity: 0.5, price: 43_000 })
+    ).toThrow('Quantité insuffisante')
+  })
+
+  it('Given position BTC existante, When second achat du même symbole, Then les quantités se cumulent', () => {
+    let portfolio = createPortfolio(10_000)
+    portfolio = executeBuy(portfolio, { symbol: 'BTCUSDT', side: 'BUY', quantity: 0.1, price: 40_000 })
+    const result = executeBuy(portfolio, { symbol: 'BTCUSDT', side: 'BUY', quantity: 0.1, price: 40_000 })
+    expect(result.positions).toHaveLength(1)
+    expect(result.positions[0].quantity).toBeCloseTo(0.2, 5)
+  })
 })

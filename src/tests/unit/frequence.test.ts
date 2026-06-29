@@ -34,4 +34,13 @@ describe('Fréquence de trading', () => {
     ]
     expect(calcTradingFrequency(trades, 'week')).toBeCloseTo(3 / 2, 1)
   })
+
+  it('Given trades sur 2 mois, When fréquence/mois, Then compte bien par mois', () => {
+    const trades = [
+      makeTrade('2024-01-05'), // janvier
+      makeTrade('2024-01-20'), // janvier
+      makeTrade('2024-02-10'), // février
+    ]
+    expect(calcTradingFrequency(trades, 'month')).toBeCloseTo(3 / 2, 1)
+  })
 })

@@ -10,17 +10,15 @@ export function calcSMA(prices: number[], period: number): number | null {
 }
 
 export function detectSignal(prices: number[], shortPeriod: number, longPeriod: number): Signal {
+  // Avec au moins longPeriod+1 prix (et shortPeriod <= longPeriod), les 4 moyennes
+  // ci-dessous ont toujours assez de données : jamais null en pratique.
   if (prices.length < longPeriod + 1) return 'HOLD'
 
   const previousPrices = prices.slice(0, -1)
-  const shortNow = calcSMA(prices, shortPeriod)
-  const longNow = calcSMA(prices, longPeriod)
-  const shortPrev = calcSMA(previousPrices, shortPeriod)
-  const longPrev = calcSMA(previousPrices, longPeriod)
-
-  if (shortNow === null || longNow === null || shortPrev === null || longPrev === null) {
-    return 'HOLD'
-  }
+  const shortNow = calcSMA(prices, shortPeriod) as number
+  const longNow = calcSMA(prices, longPeriod) as number
+  const shortPrev = calcSMA(previousPrices, shortPeriod) as number
+  const longPrev = calcSMA(previousPrices, longPeriod) as number
 
   if (shortPrev <= longPrev && shortNow > longNow) return 'BUY'
   if (shortPrev >= longPrev && shortNow < longNow) return 'SELL'
