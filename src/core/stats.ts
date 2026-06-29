@@ -43,3 +43,11 @@ export function calcPortfolioValue(balance: number, positions: Position[]): numb
   const positionsValue = positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
   return balance + positionsValue
 }
+
+export function calcUnrealizedPnL(positions: Position[]): number {
+  return positions.reduce((sum, p) => sum + (p.currentPrice - p.avgBuyPrice) * p.quantity, 0)
+}
+
+export function calcTotalInvested(trades: Trade[]): number {
+  return trades.filter(t => t.side === 'BUY').reduce((sum, t) => sum + t.quantity * t.price, 0)
+}

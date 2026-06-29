@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcTotalFees, calcPortfolioValue } from '../../core/stats'
+import { calcTotalFees, calcPortfolioValue, calcUnrealizedPnL, calcTotalInvested } from '../../core/stats'
 import type { Trade, Position } from '../../api/types'
 
 // Tests des statistiques du portefeuille
@@ -23,5 +23,30 @@ describe('Statistiques', () => {
 
   it('Given aucune position, When calcPortfolioValue, Then valeur = solde seul', () => {
     expect(calcPortfolioValue(10_000, [])).toBe(10_000)
+  })
+
+  it('Given une position BTC achetée à 40 000 et un prix actuel à 43 000, When calcUnrealizedPnL, Then gain non réalisé = 300', () => {
+    const positions: Position[] = [
+      { symbol: 'BTCUSDT', quantity: 0.1, avgBuyPrice: 40_000, currentPrice: 43_000 },
+    ]
+    expect(calcUnrealizedPnL(positions)).toBeCloseTo(300, 2)
+  })
+
+  it('Given aucune position, When calcUnrealizedPnL, Then 0', () => {
+    expect(calcUnrealizedPnL([])).toBe(0)
+  })
+
+  it('Given 2 achats et 1 vente, When calcTotalInvested, Then somme des achats seulement', () => {
+    const trades: Trade[] = [
+      { id: '1', symbol: 'BTCUSDT', side: 'BUY', quantity: 0.1, price: 40_000, fees: 4, total: 4_004, timestamp: new Date() },
+      { id: '2', symbol: 'ETHUSDT', side: 'BUY', quantity: 1, price: 3_000, fees: 3, total: 3_003, timestamp: new Date() },
+      { id: '3', symbol: 'BTCUSDT', side: 'SELL', quantity: 0.1, price: 43_000, fees: 4.3, total: 4_295.7, timestamp: new Date() },
+    ]
+    // 0.1*40000 + 1*3000 = 4000 + 3000 = 7000 (la vente n'est pas un investissement)
+    expect(calcTotalInvested(trades)).toBe(7_000)
+  })
+
+  it('Given aucun trade, When calcTotalInvested, Then 0', () => {
+    expect(calcTotalInvested([])).toBe(0)
   })
 })

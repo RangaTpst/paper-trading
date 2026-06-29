@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+import { useReducer, useEffect } from 'react'
 import type { Portfolio, OrderRequest } from '../api/types'
 import { createPortfolio, executeBuy, executeSell } from '../core/portfolio'
 
@@ -25,11 +25,12 @@ function reducer(state: Portfolio, action: Action): Portfolio {
   }
 }
 
-const STORAGE_KEY = 'paper-trading-portfolio'
+export const REAL_PORTFOLIO_KEY = 'paper-trading-portfolio'
+export const FUN_PORTFOLIO_KEY = 'paper-trading-portfolio-fun'
 
-function loadPortfolio(): Portfolio {
+function loadPortfolio(storageKey: string): Portfolio {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = localStorage.getItem(storageKey)
     if (saved) return JSON.parse(saved, (key, val) =>
       key === 'timestamp' ? new Date(val) : val
     )
@@ -39,30 +40,27 @@ function loadPortfolio(): Portfolio {
   return createPortfolio(10_000)
 }
 
-export function usePortfolio() {
-  const [portfolio, dispatch] = useReducer(reducer, undefined, loadPortfolio)
-
-  const save = (p: Portfolio) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(p))
-    } catch {
-      console.warn('Impossible de sauvegarder le portefeuille')
-    }
+function savePortfolio(storageKey: string, p: Portfolio): void {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(p))
+  } catch {
+    console.warn('Impossible de sauvegarder le portefeuille')
   }
+}
 
-  const buy = (order: OrderRequest) => {
-    dispatch({ type: 'BUY', order })
-    save(portfolio)
-  }
+// storageKey distinct = portefeuille distinct (ex: réel vs mode fun) — jamais mélangés
+export function usePortfolio(storageKey: string = REAL_PORTFOLIO_KEY) {
+  const [portfolio, dispatch] = useReducer(reducer, storageKey, loadPortfolio)
 
-  const sell = (order: OrderRequest) => {
-    dispatch({ type: 'SELL', order })
-    save(portfolio)
-  }
+  // Sauvegarde après que React ait bien appliqué le nouvel état (pas juste après dispatch,
+  // qui est asynchrone et sauvegarderait l'état précédent).
+  useEffect(() => {
+    savePortfolio(storageKey, portfolio)
+  }, [storageKey, portfolio])
 
-  const updatePrice = (symbol: string, price: number) => {
-    dispatch({ type: 'UPDATE_PRICE', symbol, price })
-  }
+  const buy = (order: OrderRequest) => dispatch({ type: 'BUY', order })
+  const sell = (order: OrderRequest) => dispatch({ type: 'SELL', order })
+  const updatePrice = (symbol: string, price: number) => dispatch({ type: 'UPDATE_PRICE', symbol, price })
 
   return { portfolio, buy, sell, updatePrice }
 }
